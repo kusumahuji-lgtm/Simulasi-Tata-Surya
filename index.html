@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tata Surya 3D — Belajar Interaktif</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet" />
+
+<style>
+/* ===================== RESET & VARIABEL ===================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  --bg: #05060f;
+  --text: #eef2ff;
+  --muted: #a9b3d0;
+  --border: rgba(255, 255, 255, 0.12);
+  --accent: #7c5cff;
+  --accent-2: #22d3ee;
+  --ok: #34d399;
+  --bad: #fb7185;
+  --card: linear-gradient(160deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03));
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===================== LATAR: AURORA + BINTANG ===================== */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -30%;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 22% 25%, rgba(124, 92, 255, 0.30), transparent 42%),
+    radial-gradient(circle at 78% 68%, rgba(34, 211, 238, 0.22), transparent 44%),
+    radial-gradient(circle at 50% 108%, rgba(236, 72, 153, 0.18), transparent 48%);
+  animation: aurora 20s ease-in-out infinite alternate;
+}
+
+@keyframes aurora {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(2%, -2%, 0) scale(1.06); }
+  100% { transform: translate3d(-2%, 2%, 0) scale(1.03); }
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1.6px 1.6px at 24px 40px, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(1.3px 1.3px at 130px 92px, rgba(200, 220, 255, 0.75), transparent),
+    radial-gradient(1.1px 1.1px at 205px 32px, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1.8px 1.8px at 72px 182px, rgba(180, 200, 255, 0.7), transparent),
+    radial-gradient(1.2px 1.2px at 245px 214px, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1.4px 1.4px at 300px 120px, rgba(255, 255, 255, 0.5), transparent);
+  background-size: 340px 340px;
+  animation: twinkle 6s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  from { opacity: 0.42; }
+  to   { opacity: 0.95; }
+}
+
+/* ===================== HALAMAN (hide / show) ===================== */
+#app {
+  position: relative;
+  z-index: 1;
+}
+
+.page {
+  display: none;
+  min-height: 100vh;
+  padding: 26px 16px 46px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.page.active {
+  display: flex;
+  animation: pageIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ===================== KOMPONEN UMUM ===================== */
+.glass {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 26px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(135deg, #7c5cff, #4f46e5 55%, #22d3ee);
+  background-size: 180% 180%;
+  background-position: 0% 50%;
+  box-shadow: 0 14px 32px rgba(99, 102, 241, 0.45);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-position 0.5s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  background-position: 100% 50%;
+  box-shadow: 0 20px 40px rgba(99, 102, 241, 0.6);
+}
+
+.btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.btn.ghost {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+
+.btn.ghost:hover {
+  background: rgba(255, 255, 255, 0.13);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.btn.small {
+  padding: 10px 18px;
+  font-size: 0.85rem;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pill {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #cdd6ff;
+  background: rgba(124, 92, 255, 0.16);
+  border: 1px solid rgba(124, 92, 255, 0.4);
+}
+
+.page-title {
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  font-weight: 800;
+  background: linear-gradient(100deg, #ffffff, #a78bfa 45%, #22d3ee 90%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shine 7s linear infinite;
+  text-align: center;
+}
+
+@keyframes shine {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+.page-desc {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+/* ===================== BERANDA ===================== */
+.home-card {
+  width: 100%;
+  max-width: 620px;
+  padding: 40px 28px;
+  text-align: center;
+}
+
+.orbit-holder {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin: 0 auto 22px;
+}
+
+.sun-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 48px;
+  height: 48px;
+  margin: -24px 0 0 -24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #fff6c2, #ffb020 46%, #ff6a00);
+  box-shadow: 0 0 30px rgba(255, 170, 30, 0.9), 0 0 80px rgba(255, 120, 0, 0.5);
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.09); }
+}
+
+.orbit-ring {
+  position: absolute;
+  inset: 0;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  animation: spin 7s linear infinite;
+}
+
+.orbit-ring:nth-child(3) {
+  inset: 26px;
+  animation-duration: 4.5s;
+  animation-direction: reverse;
+}
+
+.orbit-ring:nth-child(3) .planet-dot {
+  background: radial-gradient(circle at 34% 30%, #9fd0ff, #2563eb);
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.9);
+  width: 11px;
+  height: 11px;
+  margin-left: -5.5px;
+  top: -5.5px;
+}
+
+.planet-dot {
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #ffd7a0, #e07b39);
+  box-shadow: 0 0 16px rgba(255, 140, 60, 0.9);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.home-card .title {
+  font-size: clamp(1.9rem, 7.5vw, 3rem);
+  font-weight: 800;
+  line-height: 1.12;
+  margin-bottom: 14px;
+  background: linear-gradient(100deg, #ffffff, #a78bfa 42%, #22d3ee 85%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shine 7s linear infinite;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 0.97rem;
+  line-height: 1.75;
+  margin-bottom: 28px;
+}
+
+.best-line {
+  margin-top: 18px;
+  font-size: 0.84rem;
+  color: #8f9ac2;
+}
+
+/* ===================== SIMULASI ===================== */
+#simWrap {
+  position: relative;
+  width: 100%;
+  height: min(62vh, 520px);
+  min-height: 300px;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: radial-gradient(circle at 50% 50%, #0b1024, #05060f 72%);
+  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.6), inset 0 0 60px rgba(60, 80, 180, 0.15);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  overscroll-behavior: none;
+}
+
+#simWrap canvas {
+  display: block;
+}
+
+.sim-info {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: #dbe3ff;
+  background: rgba(10, 14, 30, 0.72);
+  border: 1px solid rgba(124, 92, 255, 0.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.sim-info b {
+  color: #a5b4ff;
+}
+
+/* ===================== KUIS ===================== */
+.quiz-wrap {
+  max-width: 640px;
+}
+
+.card {
+  padding: 26px 22px;
+  width: 100%;
+}
+
+.card.center {
+  text-align: center;
+}
+
+.progress {
+  height: 8px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  margin-bottom: 22px;
+}
+
+.progress > i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #7c5cff, #22d3ee);
+  box-shadow: 0 0 14px rgba(34, 211, 238, 0.7);
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.q-text {
+  font-size: 1.06rem;
+  font-weight: 600;
+  line-height: 1.55;
+  margin-bottom: 20px;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+}
+
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  text-align: left;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.94rem;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.opt:hover:not([disabled]) {
+  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(124, 92, 255, 0.65);
+  transform: translateX(4px);
+}
+
+.opt .letter {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(124, 92, 255, 0.25);
+  color: #cdd6ff;
+}
+
+.opt[disabled] {
+  cursor: default;
+}
+
+.opt.correct {
+  background: rgba(52, 211, 153, 0.18);
+  border-color: rgba(52, 211, 153, 0.75);
+  animation: pop 0.35s ease;
+}
+
+.opt.correct .letter {
+  background: rgba(52, 211, 153, 0.35);
+  color: #d1fae5;
+}
+
+.opt.wrong {
+  background: rgba(251, 113, 133, 0.16);
+  border-color: rgba(251, 113, 133, 0.75);
+  animation: shake 0.4s ease;
+}
+
+.opt.wrong .letter {
+  background: rgba(251, 113, 133, 0.35);
+  color: #ffe4e6;
+}
+
+@keyframes pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.025); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-6px); }
+  75%      { transform: translateX(6px); }
+}
+
+/* ===================== HASIL ===================== */
+.result-wrap {
+  max-width: 560px;
+}
+
+.score-ring {
+  --p: 0%;
+  width: 178px;
+  height: 178px;
+  border-radius: 50%;
+  margin: 6px auto 24px;
+  display: grid;
+  place-items: center;
+  background: conic-gradient(
+    from -90deg,
+    #7c5cff 0%,
+    #22d3ee var(--p),
+    rgba(255, 255, 255, 0.07) var(--p)
+  );
+  box-shadow: 0 0 50px rgba(124, 92, 255, 0.35);
+}
+
+.score-inner {
+  width: 144px;
+  height: 144px;
+  border-radius: 50%;
+  background: #0a0d1c;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.score-inner span {
+  font-size: 2.6rem;
+  font-weight: 800;
+  line-height: 1;
+  background: linear-gradient(120deg, #fff, #a78bfa, #22d3ee);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.score-inner small {
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fb-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.fb-text {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.7;
+  margin-bottom: 14px;
+}
+
+.meta {
+  font-size: 0.84rem;
+  color: #8f9ac2;
+  margin-bottom: 24px;
+}
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* ===================== RESPONSIF ===================== */
+@media (max-width: 520px) {
+  .page {
+    padding: 20px 12px 40px;
+  }
+
+  .home-card {
+    padding: 30px 18px;
+  }
+
+  .card {
+    padding: 20px 16px;
+  }
+
+  .btn {
+    padding: 14px 22px;
+    font-size: 0.93rem;
+    width: 100%;
+  }
+
+  .btn.small {
+    width: auto;
+  }
+
+  .topbar .btn.small {
+    padding: 9px 14px;
+    font-size: 0.78rem;
+  }
+
+  #simWrap {
+    height: min(56vh, 420px);
+    min-height: 280px;
+  }
+
+  .opt {
+    font-size: 0.88rem;
+    padding: 13px 14px;
+  }
+
+  .q-text {
+    font-size: 0.98rem;
+  }
+
+  .score-ring {
+    width: 156px;
+    height: 156px;
+  }
+
+  .score-inner {
+    width: 126px;
+    height: 126px;
+  }
+
+  .score-inner span {
+    font-size: 2.2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+
+<body>
+<div id="app">
+
+  <!-- ============ HALAMAN BERANDA ============ -->
+  <section class="page active" id="page-home">
+    <div class="glass home-card">
+      <div class="orbit-holder">
+        <div class="sun-core"></div>
+        <div class="orbit-ring"><span class="planet-dot"></span></div>
+        <div class="orbit-ring"><span class="planet-dot"></span></div>
+      </div>
+      <h1 class="title">Jelajahi Tata Surya</h1>
+      <p class="subtitle">
+        Belajar sambil bermain! Amati planet-planet di tata surya dalam simulasi 3D
+        yang bisa kamu putar dan zoom, lalu uji pemahamanmu lewat kuis seru.
+      </p>
+      <button class="btn" id="btnStart">🚀 Mulai Petualangan</button>
+      <p class="best-line" id="homeBest">Belum ada skor — ayo mulai!</p>
+    </div>
+  </section>
+
+  <!-- ============ HALAMAN SIMULASI 3D ============ -->
+  <section class="page" id="page-sim">
+    <div class="wrap">
+      <div class="topbar">
+        <button class="btn ghost small" data-nav="page-home">← Beranda</button>
+        <span class="pill">Simulasi 3D</span>
+      </div>
+      <h2 class="page-title">Tata Surya 3D</h2>
+      <p class="page-desc">Geser untuk memutar · Scroll / cubit untuk zoom · Ketuk planet untuk info</p>
+      <div id="simWrap">
+        <div class="sim-info" id="simInfo">🔭 Ketuk salah satu planet untuk melihat informasinya</div>
+      </div>
+      <button class="btn" data-nav="page-quiz">Lanjut ke Kuis →</button>
+    </div>
+  </section>
+
+  <!-- ============ HALAMAN KUIS ============ -->
+  <section class="page" id="page-quiz">
+    <div class="wrap quiz-wrap">
+      <div class="topbar">
+        <button class="btn ghost small" data-nav="page-home">← Beranda</button>
+        <span class="pill" id="qNum">Soal 1 dari 5</span>
+      </div>
+      <div class="glass card">
+        <div class="progress"><i id="qProgress"></i></div>
+        <h2 class="q-text" id="qText">Memuat soal…</h2>
+        <div class="options" id="qOptions"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HALAMAN HASIL ============ -->
+  <section class="page" id="page-result">
+    <div class="wrap result-wrap">
+      <div class="glass card center">
+        <div class="score-ring" id="scoreRing">
+          <div class="score-inner">
+            <span id="scoreNum">0</span>
+            <small>dari 100</small>
+          </div>
+        </div>
+        <h2 class="fb-title" id="fbTitle">—</h2>
+        <p class="fb-text" id="fbText">—</p>
+        <p class="meta" id="resMeta">—</p>
+        <div class="btn-row">
+          <button class="btn" id="btnRetry">🔁 Ulangi Kuis</button>
+          <button class="btn ghost" data-nav="page-home">🏠 Beranda</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============ LIBRARY: Three.js dari CDN ============ -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+
+<script>
+/* =========================================================================
+   1. STORAGE HELPER (aman untuk semua browser)
+   ========================================================================= */
+const STORE_KEY = "tataSurya3D_bestScore";
+
+const store = {
+  get(key, fallback) {
+    try {
+      const v = localStorage.getItem(key);
+      return v === null ? fallback : v;
+    } catch (e) {
+      return fallback;
+    }
+  },
+  set(key, value) {
+    try {
+      localStorage.setItem(key, String(value));
+    } catch (e) {
+      /* localStorage tidak tersedia — abaikan */
+    }
+  },
+};
+
+/* =========================================================================
+   2. NAVIGASI ANTAR HALAMAN
+   ========================================================================= */
+const PAGE_IDS = ["page-home", "page-sim", "page-quiz", "page-result"];
+
+function showPage(id) {
+  PAGE_IDS.forEach((p) => {
+    document.getElementById(p).classList.toggle("active", p === id);
+  });
+  window.scrollTo(0, 0);
+
+  if (id === "page-sim") {
+    initSimulation();
+    // beri waktu browser melakukan layout sebelum resize
+    setTimeout(resizeSimulation, 40);
+  }
+
+  if (id === "page-home") {
+    updateHomeBest();
+  }
+
+  if (id === "page-quiz") {
+    startQuiz();
+  }
+}
+
+/* Delegasi klik untuk semua tombol dengan atribut data-nav */
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-nav]");
+  if (btn) showPage(btn.dataset.nav);
+});
+
+/* =========================================================================
+   3. SIMULASI TATA SURYA 3D (Three.js)
+   ========================================================================= */
+let simInitialized = false;
+let renderer, scene, camera, sunMesh, clock;
+let planets = [];
+let raycaster, pointerVec;
+let camTheta = 0.55;
+let camPhi = 1.02;
+let camDist = 96;
+let isDragging = false;
+let lastPointerX = 0;
+let lastPointerY = 0;
+let dragDistance = 0;
+
+const SPEED_FACTOR = 0.35; // faktor kecepatan orbit global
+
+const PLANET_DATA = [
+  {
+    name: "Merkurius",
+    radius: 0.55,
+    dist: 9,
+    color: 0x9aa0a6,
+    speed: 1.6,
+    info: "Planet terdekat dari Matahari. Tidak punya atmosfer tebal, suhu siangnya bisa mencapai 430°C.",
+  },
+  {
+    name: "Venus",
+    radius: 0.85,
+    dist: 12.5,
+    color: 0xe8b87a,
+    speed: 1.18,
+    info: "Planet terpanas (±465°C) karena efek rumah kaca yang sangat ekstrem. Berputar berlawanan arah.",
+  },
+  {
+    name: "Bumi",
+    radius: 0.9,
+    dist: 16,
+    color: 0x2f7ff0,
+    speed: 1.0,
+    info: "Satu-satunya planet yang diketahui memiliki kehidupan. Mengorbit Matahari selama 365,25 hari.",
+  },
+  {
+    name: "Mars",
+    radius: 0.7,
+    dist: 19.5,
+    color: 0xc1440e,
+    speed: 0.8,
+    info: "Dijuluki Planet Merah karena tanahnya kaya akan oksida besi (karat). Memiliki gunung tertinggi di tata surya.",
+  },
+  {
+    name: "Jupiter",
+    radius: 2.2,
+    dist: 26,
+    color: 0xd9a066,
+    speed: 0.44,
+    info: "Planet terbesar di tata surya. Memiliki Bintik Merah Raksasa yang merupakan badai raksasa berusia ratusan tahun.",
+  },
+  {
+    name: "Saturnus",
+    radius: 1.9,
+    dist: 33,
+    color: 0xe3c98b,
+    speed: 0.32,
+    ring: true,
+    info: "Terkenal dengan cincin es dan debu yang sangat lebar. Kepadatannya lebih ringan dari air.",
+  },
+  {
+    name: "Uranus",
+    radius: 1.35,
+    dist: 39.5,
+    color: 0x7fdbda,
+    speed: 0.23,
+    info: "Berputar miring hampir 98°, sehingga tampak seperti menggelinding saat mengorbit Matahari.",
+  },
+  {
+    name: "Neptunus",
+    radius: 1.3,
+    dist: 45.5,
+    color: 0x4169e1,
+    speed: 0.18,
+    info: "Planet terjauh dari Matahari. Memiliki angin paling cepat di tata surya, mencapai 2.100 km/jam.",
+  },
+];
+
+const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+
+function makeGlowTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+  const grad = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+  grad.addColorStop(0, "rgba(255, 235, 160, 1)");
+  grad.addColorStop(0.22, "rgba(255, 180, 60, 0.55)");
+  grad.addColorStop(0.55, "rgba(255, 130, 20, 0.18)");
+  grad.addColorStop(1, "rgba(255, 110, 0, 0)");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 256, 256);
+  return new THREE.CanvasTexture(canvas);
+}
+
+function updateCamera() {
+  camera.position.x = camDist * Math.sin(camPhi) * Math.sin(camTheta);
+  camera.position.y = camDist * Math.cos(camPhi);
+  camera.position.z = camDist * Math.sin(camPhi) * Math.cos(camTheta);
+  camera.lookAt(0, 0, 0);
+}
+
+function initSimulation() {
+  if (simInitialized) return;
+  if (typeof THREE === "undefined") {
+    document.getElementById("simInfo").textContent =
+      "⚠️ Library Three.js gagal dimuat. Periksa koneksi internet kamu.";
+    return;
+  }
+  simInitialized = true;
+
+  const wrap = document.getElementById("simWrap");
+  const width = wrap.clientWidth || 800;
+  const height = wrap.clientHeight || 500;
+
+  /* --- Renderer --- */
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(width, height);
+  renderer.setClearColor(0x05060f, 1);
+  if ("outputEncoding" in renderer && THREE.sRGBEncoding) {
+    renderer.outputEncoding = THREE.sRGBEncoding;
+  }
+  renderer.domElement.style.display = "block";
+  renderer.domElement.style.touchAction = "none";
+  wrap.appendChild(renderer.domElement);
+
+  /* --- Scene & Camera --- */
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(58, width / height, 0.1, 4000);
+  updateCamera();
+
+  raycaster = new THREE.Raycaster();
+  pointerVec = new THREE.Vector2();
+  clock = new THREE.Clock();
+
+  /* --- Bintang latar belakang --- */
+  const starCount = 2400;
+  const starPositions = new Float32Array(starCount * 3);
+  for (let i = 0; i < starCount; i++) {
+    const r = 320 + Math.random() * 700;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    starPositions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+    starPositions[i * 3 + 1] = r * Math.cos(phi);
+    starPositions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+  }
+  const starGeo = new THREE.BufferGeometry();
+  starGeo.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
+  const starMat = new THREE.PointsMaterial({
+    color: 0xffffff,
+    size: 1.7,
+    sizeAttenuation: true,
+    transparent: true,
+    opacity: 0.85,
+  });
+  scene.add(new THREE.Points(starGeo, starMat));
+
+  /* --- Matahari --- */
+  sunMesh = new THREE.Mesh(
+    new THREE.SphereGeometry(4, 48, 48),
+    new THREE.MeshBasicMaterial({ color: 0xffcc44 })
+  );
+  scene.add(sunMesh);
+
+  const glowSprite = new THREE.Sprite(
+    new THREE.SpriteMaterial({
+      map: makeGlowTexture(),
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    })
+  );
+  glowSprite.scale.set(22, 22, 1);
+  scene.add(glowSprite);
+
+  /* --- Cahaya --- */
+  const sunLight = new THREE.PointLight(0xfff0c8, 1.7, 0, 1);
+  scene.add(sunLight);
+  scene.add(new THREE.AmbientLight(0x4a5680, 0.55));
+
+  /* --- Planet + orbit --- */
+  PLANET_DATA.forEach((data) => {
+    const mesh = new THREE.Mesh(
+      new THREE.SphereGeometry(data.radius, 32, 32),
+      new THREE.MeshStandardMaterial({
+        color: data.color,
+        roughness: 0.85,
+        metalness: 0.05,
+      })
+    );
+    mesh.userData.planetName = data.name;
+    scene.add(mesh);
+
+    // Garis orbit
+    const points = [];
+    for (let i = 0; i <= 160; i++) {
+      const a = (i / 160) * Math.PI * 2;
+      points.push(new THREE.Vector3(Math.cos(a) * data.dist, 0, Math.sin(a) * data.dist));
+    }
+    const orbitLine = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(points),
+      new THREE.LineBasicMaterial({
+        color: 0x53628f,
+        transparent: true,
+        opacity: 0.38,
+      })
+    );
+    scene.add(orbitLine);
+
+    // Cincin Saturnus
+    if (data.ring) {
+      const ring = new THREE.Mesh(
+        new THREE.RingGeometry(data.radius * 1.45, data.radius * 2.35, 72),
+        new THREE.MeshBasicMaterial({
+          color: 0xd8c8a0,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.55,
+        })
+      );
+      ring.rotation.x = -Math.PI / 2;
+      mesh.add(ring);
+    }
+
+    planets.push({
+      ...data,
+      mesh,
+      angle: Math.random() * Math.PI * 2,
+    });
+  });
+
+  /* --- Kontrol pointer (drag & zoom) --- */
+  const el = renderer.domElement;
+
+  el.addEventListener("pointerdown", (e) => {
+    isDragging = true;
+    dragDistance = 0;
+    lastPointerX = e.clientX;
+    lastPointerY = e.clientY;
+    if (el.setPointerCapture) {
+      try { el.setPointerCapture(e.pointerId); } catch (err) {}
+    }
+  });
+
+  el.addEventListener("pointermove", (e) => {
+    if (!isDragging) return;
+    const dx = e.clientX - lastPointerX;
+    const dy = e.clientY - lastPointerY;
+    lastPointerX = e.clientX;
+    lastPointerY = e.clientY;
+    dragDistance += Math.abs(dx) + Math.abs(dy);
+
+    camTheta -= dx * 0.006;
+    camPhi = clamp(camPhi - dy * 0.005, 0.18, Math.PI / 2 - 0.06);
+    updateCamera();
+  });
+
+  const endDrag = (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    if (dragDistance < 8 && e.type === "pointerup") {
+      pickPlanet(e);
+    }
+  };
+  el.addEventListener("pointerup", endDrag);
+  el.addEventListener("pointercancel", () => { isDragging = false; });
+  el.addEventListener("pointerleave", () => { isDragging = false; });
+
+  el.addEventListener(
+    "wheel",
+    (e) => {
+      e.preventDefault();
+      camDist = clamp(camDist + e.deltaY * 0.07, 22, 230);
+      updateCamera();
+    },
+    { passive: false }
+  );
+
+  /* --- Resize observer --- */
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => resizeSimulation());
+    ro.observe(wrap);
+  }
+  window.addEventListener("orientationchange", () => setTimeout(resizeSimulation, 250));
+
+  animateSimulation();
+}
+
+function pickPlanet(e) {
+  if (!renderer || !camera) return;
+  const rect = renderer.domElement.getBoundingClientRect();
+  pointerVec.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  pointerVec.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+  raycaster.setFromCamera(pointerVec, camera);
+  const hit = raycaster.intersectObjects(planets.map((p) => p.mesh), false);
+
+  if (hit.length > 0) {
+    const name = hit[0].object.userData.planetName;
+    const planet = planets.find((p) => p.name === name);
+    if (planet) {
+      const infoBox = document.getElementById("simInfo");
+      infoBox.style.opacity = "0";
+      setTimeout(() => {
+        infoBox.innerHTML = `<b>${planet.name}</b> — ${planet.info}`;
+        infoBox.style.opacity = "1";
+      }, 150);
+    }
+  }
+}
+
+function resizeSimulation() {
+  if (!renderer || !camera) return;
+  const wrap = document.getElementById("simWrap");
+  if (!wrap) return;
+  const w = wrap.clientWidth;
+  const h = wrap.clientHeight;
+  if (w === 0 || h === 0) return;
+  renderer.setSize(w, h, false);
+  renderer.domElement.style.width = "100%";
+  renderer.domElement.style.height = "100%";
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+
+function animateSimulation() {
+  requestAnimationFrame(animateSimulation);
+
+  const simPage = document.getElementById("page-sim");
+  if (!simPage.classList.contains("active")) return;
+
+  const dt = Math.min(clock.getDelta(), 0.05);
+
+  // Rotasi lambat kamera saat tidak sedang digeser
+  if (!isDragging) {
+    camTheta += dt * 0.035;
+    updateCamera();
+  }
+
+  // Rotasi Matahari
+  sunMesh.rotation.y += dt * 0.08;
+
+  // Gerak orbit planet
+  planets.forEach((p) => {
+    p.angle += p.speed * SPEED_FACTOR * dt;
+    p.mesh.position.x = Math.cos(p.angle) * p.dist;
+    p.mesh.position.z = Math.sin(p.angle) * p.dist;
+    p.mesh.rotation.y += dt * 0.6;
+  });
+
+  renderer.render(scene, camera);
+}
+
+/* =========================================================================
+   4. KUIS
+   ========================================================================= */
+const QUESTIONS = [
+  {
+    q: "Planet yang paling dekat dengan Matahari adalah …",
+    opts: ["Venus", "Merkurius", "Bumi", "Mars"],
+    answer: 1,
+  },
+  {
+    q: "Planet terbesar di dalam tata surya adalah …",
+    opts: ["Saturnus", "Neptunus", "Jupiter", "Uranus"],
+    answer: 2,
+  },
+  {
+    q: "Planet yang dijuluki sebagai “Planet Merah” adalah …",
+    opts: ["Mars", "Venus", "Merkurius", "Jupiter"],
+    answer: 0,
+  },
+  {
+    q: "Benda langit yang menjadi pusat tata surya adalah …",
+    opts: ["Bumi", "Bulan", "Matahari", "Jupiter"],
+    answer: 2,
+  },
+  {
+    q: "Planet yang memiliki cincin paling lebar dan mencolok adalah …",
+    opts: ["Uranus", "Saturnus", "Neptunus", "Mars"],
+    answer: 1,
+  },
+];
+
+let qIndex = 0;
+let correctCount = 0;
+let answered = false;
+
+function startQuiz() {
+  qIndex = 0;
+  correctCount = 0;
+  answered = false;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const item = QUESTIONS[qIndex];
+  answered = false;
+
+  document.getElementById("qNum").textContent =
+    "Soal " + (qIndex + 1) + " dari " + QUESTIONS.length;
+
+  document.getElementById("qProgress").style.width =
+    (qIndex / QUESTIONS.length) * 100 + "%";
+
+  document.getElementById("qText").textContent = item.q;
+
+  const box = document.getElementById("qOptions");
+  box.innerHTML = "";
+
+  item.opts.forEach((text, i) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "opt";
+    btn.innerHTML =
+      '<span class="letter">' + "ABCD"[i] + "</span><span>" + text + "</span>";
+    btn.addEventListener("click", () => answerQuestion(i, btn));
+    box.appendChild(btn);
+  });
+}
+
+function answerQuestion(selected, btn) {
+  if (answered) return;
+  answered = true;
+
+  const item = QUESTIONS[qIndex];
+  const allOpts = Array.from(document.querySelectorAll("#qOptions .opt"));
+  allOpts.forEach((b) => (b.disabled = true));
+
+  if (selected === item.answer) {
+    btn.classList.add("correct");
+    correctCount++;
+  } else {
+    btn.classList.add("wrong");
+    allOpts[item.answer].classList.add("correct");
+  }
+
+  document.getElementById("qProgress").style.width =
+    ((qIndex + 1) / QUESTIONS.length) * 100 + "%";
+
+  setTimeout(() => {
+    qIndex++;
+    if (qIndex < QUESTIONS.length) {
+      renderQuestion();
+    } else {
+      finishQuiz();
+    }
+  }, 950);
+}
+
+function finishQuiz() {
+  const score = Math.round((correctCount / QUESTIONS.length) * 100);
+
+  const prevBest = Number(store.get(STORE_KEY, 0)) || 0;
+  const best = Math.max(score, prevBest);
+  store.set(STORE_KEY, best);
+
+  showResult(score, correctCount, best);
+  showPage("page-result");
+}
+
+/* =========================================================================
+   5. HASIL
+   ========================================================================= */
+function showResult(score, correct, best) {
+  // Feedback
+  let title, text;
+  if (score === 100) {
+    title = "🌟 Sempurna!";
+    text = "Luar biasa! Kamu sudah menguasai materi tata surya dengan sangat baik.";
+  } else if (score >= 80) {
+    title = "🚀 Hebat!";
+    text = "Pemahamanmu sudah sangat bagus. Sedikit lagi menuju sempurna!";
+  } else if (score >= 60) {
+    title = "👍 Bagus!";
+    text = "Kamu sudah cukup paham. Coba ulangi simulasi 3D untuk memperkuat ingatanmu.";
+  } else if (score >= 40) {
+    title = "💪 Lumayan!";
+    text = "Masih ada ruang untuk berkembang. Pelajari lagi planet-planet di simulasi 3D, lalu ulangi kuis.";
+  } else {
+    title = "🌱 Ayo Belajar Lagi!";
+    text = "Jangan menyerah! Buka simulasi 3D, amati planet-planetnya, lalu coba kuis sekali lagi.";
+  }
+
+  document.getElementById("fbTitle").textContent = title;
+  document.getElementById("fbText").textContent = text;
+  document.getElementById("resMeta").textContent =
+    "Jawaban benar " + correct + " dari " + QUESTIONS.length + " · Skor terbaik: " + best;
+
+  animateScore(score);
+}
+
+function animateScore(target) {
+  const ring = document.getElementById("scoreRing");
+  const numEl = document.getElementById("scoreNum");
+  const duration = 950;
+  const start = performance.now();
+
+  function step(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const value = Math.round(target * eased);
+
+    numEl.textContent = value;
+    ring.style.setProperty("--p", (target * eased) + "%");
+
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* =========================================================================
+   6. BERANDA — SKOR TERBAIK
+   ========================================================================= */
+function updateHomeBest() {
+  const best = Number(store.get(STORE_KEY, 0)) || 0;
+  const el = document.getElementById("homeBest");
+  el.textContent =
+    best > 0
+      ? "🏆 Skor terbaik kamu: " + best + " / 100"
+      : "Belum ada skor — ayo mulai!";
+}
+
+/* =========================================================================
+   7. INISIALISASI
+   ========================================================================= */
+document.getElementById("btnStart").addEventListener("click", () => {
+  showPage("page-sim");
+});
+
+document.getElementById("btnRetry").addEventListener("click", () => {
+  showPage("page-quiz");
+});
+
+window.addEventListener("resize", () => {
+  resizeSimulation();
+});
+
+updateHomeBest();
+</script>
+</body>
+</html>
